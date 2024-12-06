@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `transaksi` ADD COLUMN `IdAlat` INTEGER NOT NULL DEFAULT 0;

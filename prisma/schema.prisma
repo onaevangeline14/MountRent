@@ -1,0 +1,118 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum jenis_Kelamin {
+  P
+  L
+}
+
+enum Status {
+  Sudah
+  Belum
+}
+
+enum Role {
+  Karyawan
+  Customer
+}
+
+enum Method{
+  Cash
+  Qris
+  Debit
+}
+
+model alat {
+  uuid      String  @default("")
+  id        Int     @id @default(autoincrement())
+  name      String  @default("")
+  color     String  @default("")
+  stock     Int     @default(0)
+  price     Int     @default(0)
+  merk      String  @default("")
+  pict      String  @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  detailtransaksi DetailTransaksi[] 
+}
+
+model User {
+  id          Int     @id @default(autoincrement())
+  uuid        String  @unique @default("")
+  email       String  @unique @default("")
+  password    String  @default("")
+  profile_picture String  @default("")
+  name        String  @default("")
+  no_telp     String  @default("")
+  alamat      String  @default("") 
+  Jenis_kelamin jenis_Kelamin @default(P)
+  role        Role     @default(Customer)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  detailuser  Transaksi[]
+  
+}    
+
+model Transaksi {
+  Id             Int             @id @default(autoincrement())
+  uuid           String          @unique @default("")
+  user           User?           @relation(fields: [idUser], references: [id])
+  idUser         Int?
+  totalPrice     Int             @default(0)
+  statusBayar    Status          @default(Belum) // Pastikan ini ada di enum
+  tglTransaksi   DateTime        @default(now())
+  payment_method  Method         @default(Cash)
+  tanggal_mulai  DateTime        @default(now())
+  tanggal_akhir  DateTime        @default(now())
+  tanggal_kembali DateTime       @default(now())
+  bukti_bayar    String          @default("")
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  detailTransaksi DetailTransaksi[]
+  IdAlat      Int     @default(0)
+   
+}
+
+
+model Order {
+  id             Int     @id @default(autoincrement())
+  uuid           String  @unique
+  customer       String  // Pastikan field ini ada
+  totalPrice     Float
+  payment_method String
+  statusBayar    String
+  idUser         Int
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  detailTransaksi  DetailTransaksi[]
+  
+}
+
+
+model DetailTransaksi {
+  id           Int          @id @default(autoincrement())
+  uuid         String       @unique @default("")
+  idOrder     Int?
+  Order     Order?  @relation(fields: [idOrder], references: [id])
+  idTransaksi  Int?
+  transaksi    Transaksi?  @relation(fields: [idTransaksi], references: [Id])
+  idAlat       Int?
+  alat         alat?        @relation(fields: [idAlat], references: [id])
+  jumlah       Int          @default(0)
+  subtotal      Int          @default(0)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  
+}
